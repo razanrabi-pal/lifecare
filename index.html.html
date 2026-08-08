@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Care — Duty & Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1B2A4A;
+    --navy-deep:#101a30;
+    --slate:#5B6B87;
+    --slate-light:#8592A8;
+    --paper:#FBFAF8;
+    --paper-raised:#FFFFFF;
+    --line:#E4E1DA;
+    --amber:#C17F3E;
+    --amber-bg:#FBF0E4;
+    --sage:#6B8F71;
+    --sage-bg:#EEF4EE;
+    --rose:#B85C5C;
+    --rose-bg:#FBEDED;
+    --team-a:#4A7BA6;
+    --team-a-bg:#EAF1F6;
+    --team-b:#7A5C9E;
+    --team-b-bg:#F2EEF6;
+    --team-c:#B87A3E;
+    --team-c-bg:#F8EFE4;
+    --radius:10px;
+    --shadow:0 1px 2px rgba(16,26,48,0.06), 0 4px 16px rgba(16,26,48,0.04);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--paper);
+    color:var(--navy-deep);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--amber-bg); color:var(--navy-deep);}
+
+  /* ===== Header ===== */
+  .app-header{
+    background:var(--navy);
+    color:#fff;
+    padding:20px 24px 0 24px;
+    position:sticky; top:0; z-index:50;
+    box-shadow:0 2px 12px rgba(16,26,48,0.15);
+  }
+  .app-header-top{
+    display:flex; align-items:baseline; justify-content:space-between;
+    max-width:1180px; margin:0 auto;
+    flex-wrap:wrap; gap:8px;
+    padding-bottom:16px;
+  }
+  .app-title{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:22px;
+    letter-spacing:-0.01em;
+  }
+  .app-title small{
+    display:block;
+    font-family:'Inter',sans-serif;
+    font-weight:500;
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:#A9B6CC;
+    margin-top:2px;
+  }
+  .sync-pill{
+    font-size:12px;
+    font-weight:500;
+    color:#C7D2E5;
+    display:flex; align-items:center; gap:6px;
+  }
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--slate-light);}
+  .sync-dot.ok{background:#7FBF8A;}
+  .sync-dot.err{background:var(--rose);}
+
+  .tabs{
+    max-width:1180px; margin:0 auto;
+    display:flex; gap:4px;
+  }
+  .tab-btn{
+    background:none; border:none;
+    color:#B7C2D9;
+    font-family:'Inter Tight',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:10px 18px;
+    cursor:pointer;
+    border-radius:8px 8px 0 0;
+    transition:background .15s, color .15s;
+  }
+  .tab-btn:hover{background:rgba(255,255,255,0.06); color:#fff;}
+  .tab-btn.active{background:var(--paper); color:var(--navy);}
+
+  main{max-width:1180px; margin:0 auto; padding:28px 24px 80px;}
+  .view{display:none;}
+  .view.active{display:block; animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  h1.section-title{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:26px;
+    letter-spacing:-0.01em;
+    margin:0 0 4px 0;
+    color:var(--navy-deep);
+  }
+  .section-sub{color:var(--slate); font-size:14px; margin:0 0 24px 0;}
+
+  /* ===== Controls row ===== */
+  .controls-row{
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    margin-bottom:20px;
+  }
+  select, input[type=text], input[type=number], input[type=date], input[type=password], textarea{
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    border:1px solid var(--line);
+    background:var(--paper-raised);
+    border-radius:8px;
+    padding:9px 12px;
+    color:var(--navy-deep);
+    outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  select:focus, input:focus, textarea:focus{
+    border-color:var(--team-a);
+    box-shadow:0 0 0 3px rgba(74,123,166,0.15);
+  }
+  .btn{
+    font-family:'Inter Tight',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    border:none;
+    border-radius:8px;
+    padding:10px 18px;
+    cursor:pointer;
+    transition:transform .1s, box-shadow .15s, background .15s;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--navy); color:#fff;}
+  .btn-primary:hover{background:var(--navy-deep); box-shadow:var(--shadow);}
+  .btn-ghost{background:transparent; color:var(--navy); border:1px solid var(--line);}
+  .btn-ghost:hover{background:var(--paper-raised); border-color:var(--slate-light);}
+  .btn-sm{padding:6px 12px; font-size:12.5px; border-radius:6px;}
+  .btn-danger{background:transparent; color:var(--rose); border:1px solid var(--rose-bg);}
+  .btn-danger:hover{background:var(--rose-bg);}
+  .spacer{flex:1;}
+
+  /* ===== Schedule grid ===== */
+  .month-nav{display:flex; align-items:center; gap:14px;}
+  .month-nav .month-label{
+    font-family:'Fraunces',serif; font-weight:600; font-size:19px; min-width:190px; text-align:center;
+  }
+  .icon-btn{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:8px;
+    width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--navy); font-size:16px;
+  }
+  .icon-btn:hover{border-color:var(--slate-light);}
+
+  .legend{display:flex; gap:16px; margin-bottom:18px; flex-wrap:wrap;}
+  .legend-item{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--slate); font-weight:500;}
+  .legend-swatch{width:11px; height:11px; border-radius:3px;}
+
+  .role-row{font-size:10.5px; text-transform:uppercase; letter-spacing:0.03em; color:var(--slate-light); font-weight:700; margin-bottom:3px;}
+  .role-block{margin-bottom:8px;}
+  .role-block:last-child{margin-bottom:0;}
+
+  .roster-table-wrap{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow-x:auto;
+    overflow-y:hidden;
+    box-shadow:var(--shadow);
+    -webkit-overflow-scrolling:touch;
+  }
+  table.roster{width:100%; min-width:680px; border-collapse:collapse;}
+  table.roster th{
+    background:var(--navy);
+    color:#fff;
+    font-family:'Inter Tight',sans-serif;
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:12px 10px;
+    text-align:left;
+    position:sticky; top:0;
+  }
+  table.roster th:first-child{position:sticky; left:0; top:0; z-index:3;}
+  table.roster td{
+    padding:10px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+    font-size:13.5px;
+  }
+  table.roster tr:nth-child(even) td{background:#FAF9F6;}
+  table.roster tr:nth-child(even) td.date-cell{background:#FAF9F6;}
+  .date-cell{white-space:nowrap; font-weight:600; color:var(--navy-deep); position:sticky; left:0; background:var(--paper-raised); z-index:2;}
+  .date-cell .wk{display:block; font-weight:500; font-size:11px; color:var(--slate); text-transform:uppercase; letter-spacing:0.04em;}
+  .weekend-row td{background:var(--amber-bg) !important;}
+  .weekend-row td.date-cell{background:var(--amber-bg) !important;}
+
+  .team-cell{min-width:150px;}
+  .assign-chip{
+    display:inline-flex; align-items:center; gap:5px;
+    border-radius:6px; padding:3px 8px; margin:2px 3px 2px 0;
+    font-size:12px; font-weight:600; cursor:default;
+  }
+  .assign-chip.team-a{background:var(--team-a-bg); color:var(--team-a);}
+  .assign-chip.team-b{background:var(--team-b-bg); color:var(--team-b);}
+  .assign-chip.team-c{background:var(--team-c-bg); color:var(--team-c);}
+  .assign-chip .x{cursor:pointer; opacity:0.6; font-weight:700;}
+  .assign-chip .x:hover{opacity:1;}
+  .add-slot-btn{
+    background:none; border:1px dashed var(--line); color:var(--slate);
+    font-size:11.5px; padding:3px 9px; border-radius:6px; cursor:pointer; margin-top:2px;
+  }
+  .add-slot-btn:hover{border-color:var(--slate-light); color:var(--navy);}
+
+  /* ===== Payments ===== */
+  .ledger-summary{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr));
+    gap:12px; margin-bottom:22px;
+  }
+  .stat-card{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px 18px; box-shadow:var(--shadow);
+  }
+  .stat-card .stat-label{font-size:12px; color:var(--slate); font-weight:600; text-transform:uppercase; letter-spacing:0.04em;}
+  .stat-card .stat-value{font-family:'Fraunces',serif; font-size:26px; font-weight:600; color:var(--navy-deep); margin-top:4px;}
+  .stat-card.accent .stat-value{color:var(--sage);}
+
+  .ledger-table-wrap{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+    overflow-x:auto; box-shadow:var(--shadow);
+  }
+  table.ledger{width:100%; border-collapse:collapse; min-width:640px;}
+  table.ledger th{
+    background:var(--paper); color:var(--slate); text-align:left;
+    font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
+    padding:11px 14px; border-bottom:1px solid var(--line);
+  }
+  table.ledger td{padding:12px 14px; border-bottom:1px solid var(--line); font-size:13.5px;}
+  table.ledger tr:last-child td{border-bottom:none;}
+  table.ledger tr:hover td{background:#FAF9F6;}
+  .amount{font-family:'Inter Tight',sans-serif; font-weight:700; color:var(--navy-deep);}
+  .procedure-tag{
+    background:var(--sage-bg); color:var(--sage); font-size:11.5px; font-weight:600;
+    padding:3px 9px; border-radius:6px; display:inline-block;
+  }
+
+  .form-card{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px; margin-bottom:22px; box-shadow:var(--shadow);
+  }
+  .form-card h3{font-family:'Inter Tight',sans-serif; font-size:14px; margin:0 0 14px 0; color:var(--navy);}
+  .form-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:12px; align-items:end;}
+  .field label{display:block; font-size:11.5px; font-weight:600; color:var(--slate); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.03em;}
+  .field select, .field input{width:100%;}
+
+  /* ===== Analytics / lock ===== */
+  .lock-screen{
+    max-width:380px; margin:60px auto; text-align:center;
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+    padding:40px 32px; box-shadow:var(--shadow);
+  }
+  .lock-screen .lock-icon{font-size:30px; margin-bottom:12px;}
+  .lock-screen h2{font-family:'Fraunces',serif; font-size:20px; margin:0 0 6px 0;}
+  .lock-screen p{color:var(--slate); font-size:13.5px; margin:0 0 20px 0;}
+  .lock-screen input{width:100%; margin-bottom:12px; text-align:center; letter-spacing:0.2em;}
+  .lock-error{color:var(--rose); font-size:12.5px; margin-top:-4px; margin-bottom:12px; display:none;}
+
+  .analytics-toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;}
+  .staff-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:14px; margin-bottom:28px;}
+  .staff-card{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px; box-shadow:var(--shadow);
+  }
+  .staff-card .name{font-family:'Inter Tight',sans-serif; font-weight:700; font-size:15px; color:var(--navy-deep); margin-bottom:2px;}
+  .staff-card .role{font-size:12px; color:var(--slate); margin-bottom:12px;}
+  .staff-metrics{display:flex; gap:10px; flex-wrap:wrap;}
+  .metric{background:var(--paper); border-radius:7px; padding:8px 10px; flex:1; min-width:64px;}
+  .metric .m-num{font-family:'Fraunces',serif; font-size:19px; font-weight:600;}
+  .metric .m-lbl{font-size:10.5px; color:var(--slate); text-transform:uppercase; letter-spacing:0.03em; font-weight:600;}
+  .team-breakdown{display:flex; gap:6px; margin-top:10px; flex-wrap:wrap;}
+  .team-breakdown span{font-size:11px; font-weight:700; padding:3px 8px; border-radius:5px;}
+
+  .empty-state{
+    text-align:center; padding:50px 20px; color:var(--slate);
+  }
+  .empty-state .e-icon{font-size:28px; margin-bottom:8px; opacity:0.5;}
+  .empty-state p{font-size:13.5px; margin:0;}
+
+  .modal-backdrop{
+    display:none; position:fixed; inset:0; background:rgba(16,26,48,0.45);
+    z-index:100; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-backdrop.active{display:flex;}
+  .modal{
+    background:var(--paper-raised); border-radius:12px; padding:24px; max-width:340px; width:100%;
+    box-shadow:0 20px 60px rgba(16,26,48,0.25);
+  }
+  .modal h3{font-family:'Fraunces',serif; margin:0 0 14px 0; font-size:18px;}
+  .modal .form-grid{grid-template-columns:1fr;}
+  .modal-actions{display:flex; gap:8px; margin-top:16px;}
+  .modal-actions .btn{flex:1;}
+
+  footer.hint{
+    max-width:1180px; margin:30px auto 0; padding:0 24px;
+    font-size:12px; color:var(--slate-light); text-align:center;
+  }
+
+  @media (max-width:640px){
+    .app-header{padding:16px 16px 0 16px;}
+    main{padding:20px 16px 60px;}
+    table.roster th, table.roster td{padding:8px 6px; font-size:12px;}
+    .month-nav .month-label{min-width:150px; font-size:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-header-top">
+    <div class="app-title">Life Care<small>Duty roster &amp; patient ledger</small></div>
+    <div class="sync-pill"><span class="sync-dot" id="syncDot"></span><span id="syncText">Local only — add Sheets URL in settings</span><button id="refreshBtn" title="Refresh shared data" style="background:none;border:none;color:#C7D2E5;cursor:pointer;font-size:13px;margin-left:6px;padding:2px 4px;">⟳</button></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-view="schedule">Schedule</button>
+    <button class="tab-btn" data-view="payments">Payments</button>
+    <button class="tab-btn" data-view="analytics">Analytics</button>
+    <button class="tab-btn" data-view="settings">⚙ Sync</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- ================= SCHEDULE ================= -->
+  <section class="view active" id="view-schedule">
+    <h1 class="section-title">Duty roster</h1>
+    <p class="section-sub">Each day has three shifts — Morning, Evening, Night — and each shift needs one physician, one nurse, and one lab technician. Tap "+ assign" to sign up.</p>
+
+    <div class="controls-row">
+      <div class="month-nav">
+        <button class="icon-btn" id="prevMonth">‹</button>
+        <div class="month-label" id="monthLabel">July 2026</div>
+        <button class="icon-btn" id="nextMonth">›</button>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" id="openSignupBtn">+ Sign up for a shift</button>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--team-a)"></span>Shift A · Morning</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--team-b)"></span>Shift B · Evening</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--team-c)"></span>Shift C · Night</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--amber)"></span>Weekend</div>
+    </div>
+
+    <div class="roster-table-wrap">
+      <table class="roster">
+        <thead>
+          <tr>
+            <th style="width:110px;">Date</th>
+            <th>Shift A · Morning</th>
+            <th>Shift B · Evening</th>
+            <th>Shift C · Night</th>
+          </tr>
+        </thead>
+        <tbody id="rosterBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= PAYMENTS ================= -->
+  <section class="view" id="view-payments">
+    <h1 class="section-title">Patient ledger</h1>
+    <p class="section-sub">Log payments and procedures per patient. Totals update automatically.</p>
+
+    <div class="ledger-summary" id="ledgerSummary"></div>
+
+    <div class="form-card">
+      <h3>Add an entry</h3>
+      <div class="form-grid">
+        <div class="field"><label>Date</label><input type="date" id="pDate"></div>
+        <div class="field"><label>Patient name</label><input type="text" id="pName" placeholder="e.g. Ayman R."></div>
+        <div class="field"><label>Procedure</label><input type="text" id="pProc" placeholder="e.g. Dressing, Suture, Venofer"></div>
+        <div class="field"><label>Amount</label><input type="number" id="pAmount" placeholder="0"></div>
+        <div class="field"><label>Notes (optional)</label><input type="text" id="pNotes" placeholder="Follow-up needed?"></div>
+        <div class="field"><button class="btn btn-primary" id="addPaymentBtn" style="width:100%;">Add entry</button></div>
+      </div>
+    </div>
+
+    <div class="controls-row">
+      <input type="text" id="ledgerSearch" placeholder="Search by patient name…" style="min-width:220px;">
+      <div class="spacer"></div>
+      <span style="font-size:12.5px; color:var(--slate);" id="ledgerCount"></span>
+    </div>
+
+    <div class="ledger-table-wrap">
+      <table class="ledger">
+        <thead>
+          <tr><th>#</th><th>Date</th><th>Patient</th><th>Procedure</th><th>Amount</th><th>Notes</th><th></th></tr>
+        </thead>
+        <tbody id="ledgerBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= ANALYTICS ================= -->
+  <section class="view" id="view-analytics">
+    <div id="lockScreen" class="lock-screen">
+      <div class="lock-icon">🔒</div>
+      <h2>Analytics is locked</h2>
+      <p>Enter the analytics password to view monthly staff and payment summaries.</p>
+      <input type="password" id="lockPassInput" placeholder="Password">
+      <div class="lock-error" id="lockError">Incorrect password. Try again.</div>
+      <button class="btn btn-primary" style="width:100%;" id="unlockBtn">Unlock</button>
+    </div>
+
+    <div id="analyticsContent" style="display:none;">
+      <div class="analytics-toolbar">
+        <div>
+          <h1 class="section-title" style="margin-bottom:2px;">Monthly analytics</h1>
+          <p class="section-sub" style="margin-bottom:0;">Shift counts and payment totals for <span id="analyticsMonthLabel"></span></p>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <select id="analyticsMonthSelect"></select>
+          <button class="btn btn-ghost btn-sm" id="lockAgainBtn">🔒 Lock</button>
+        </div>
+      </div>
+
+      <div class="ledger-summary" id="analyticsOverview"></div>
+
+      <h3 style="font-family:'Inter Tight',sans-serif; font-size:14px; color:var(--navy); margin:24px 0 12px;">Staff breakdown</h3>
+      <div class="staff-grid" id="staffGrid"></div>
+    </div>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+  <section class="view" id="view-settings">
+    <h1 class="section-title">Sync settings</h1>
+    <p class="section-sub">Connect this app to a Google Sheet so all data is backed up and shared through your normal workflow.</p>
+
+    <div class="form-card">
+      <h3>Google Apps Script Web App URL</h3>
+      <div class="form-grid" style="grid-template-columns:1fr auto;">
+        <div class="field"><input type="text" id="sheetsUrl" placeholder="https://script.google.com/macros/s/…/exec"></div>
+        <div class="field"><button class="btn btn-primary" id="saveSheetsUrl">Save &amp; test</button></div>
+      </div>
+      <p style="font-size:12.5px; color:var(--slate); margin-top:14px; margin-bottom:0;" id="sheetsStatus">Not connected yet.</p>
+    </div>
+
+    <div class="form-card">
+      <h3>Analytics password</h3>
+      <div class="form-grid" style="grid-template-columns:1fr auto;">
+        <div class="field"><input type="password" id="newPassInput" placeholder="Set a new password"></div>
+        <div class="field"><button class="btn btn-primary" id="savePassBtn">Update password</button></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>How to connect Google Sheets</h3>
+      <p style="font-size:13.5px; color:var(--slate); line-height:1.6;">
+        1. Create a new Google Sheet.<br>
+        2. Go to Extensions → Apps Script.<br>
+        3. Paste the script provided separately, and deploy it as a Web App (access: "Anyone").<br>
+        4. Copy the deployment URL and paste it above.<br>
+        5. Once connected, every shift signup and payment entry syncs to your Sheet automatically.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="hint">Data is saved on this device and, once connected, synced to your Google Sheet. No patient data leaves your organization's sheet.</footer>
+
+<!-- Shift signup modal -->
+<div class="modal-backdrop" id="signupModal">
+  <div class="modal">
+    <h3>Sign up for a shift</h3>
+    <div class="form-grid">
+      <div class="field"><label>Date</label><input type="date" id="mDate"></div>
+      <div class="field"><label>Shift</label>
+        <select id="mTeam"><option value="A">Shift A · Morning</option><option value="B">Shift B · Evening</option><option value="C">Shift C · Night</option></select>
+      </div>
+      <div class="field"><label>Role</label>
+        <select id="mRole"><option>Physician</option><option>Nurse</option><option>Lab Technician</option></select>
+      </div>
+      <div class="field"><label>Your name</label><input type="text" id="mName" placeholder="e.g. Dr. Razan Rabi"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancelSignup">Cancel</button>
+      <button class="btn btn-primary" id="confirmSignup">Sign up</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ STORAGE LAYER ============ */
+const LS_KEY_SHIFTS = 'lifecare_shifts_v1';
+const LS_KEY_PAYMENTS = 'lifecare_payments_v1';
+const LS_KEY_PASS = 'lifecare_analytics_pass_v1';
+const LS_KEY_SHEETS_URL = 'lifecare_sheets_url_v1';
+const LS_KEY_UNLOCKED = 'lifecare_unlocked_session';
+
+function lsGet(key, fallback){
+  try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch(e){ return fallback; }
+}
+function lsSet(key, val){
+  try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+}
+
+let shifts = lsGet(LS_KEY_SHIFTS, []); // {id, date, team, role, name}
+let payments = lsGet(LS_KEY_PAYMENTS, []); // {id, date, name, proc, amount, notes}
+let sheetsUrl = lsGet(LS_KEY_SHEETS_URL, '');
+let analyticsPass = lsGet(LS_KEY_PASS, '1234');
+
+document.getElementById('sheetsUrl').value = sheetsUrl;
+
+function setSyncStatus(state, text){
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.className = 'sync-dot ' + (state || '');
+  txt.textContent = text;
+}
+if(sheetsUrl){ setSyncStatus('ok', 'Connected to Google Sheets'); }
+
+async function pushToSheets(type, payload){
+  if(!sheetsUrl) return;
+  try{
+    setSyncStatus('', 'Syncing…');
+    await fetch(sheetsUrl, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({type, payload})
+    });
+    setSyncStatus('ok', 'Synced to Google Sheets');
+  }catch(e){
+    setSyncStatus('err', 'Sync failed — check the URL in Settings');
+  }
+}
+async function pullFromSheets(silent){
+  if(!sheetsUrl) return;
+  try{
+    if(!silent) setSyncStatus('', 'Loading shared data…');
+    const res = await fetch(sheetsUrl, { method:'GET' });
+    const data = await res.json();
+    if(data.status === 'ok'){
+      shifts = (data.shifts || []).map(s=>({
+        id: String(s.id), date: s.date, team: s.team, role: s.role, name: s.name
+      })).filter(s=>s.id);
+      payments = (data.payments || []).map(p=>({
+        id: String(p.id), date: p.date, name: p.name, proc: p.proc, amount: Number(p.amount)||0, notes: p.notes
+      })).filter(p=>p.id);
+      lsSet(LS_KEY_SHIFTS, shifts);
+      lsSet(LS_KEY_PAYMENTS, payments);
+      renderRoster();
+      renderLedgerSummary();
+      renderLedger();
+      setSyncStatus('ok', 'Up to date with Google Sheets');
+    }else{
+      setSyncStatus('err', 'Could not load shared data');
+    }
+  }catch(e){
+    setSyncStatus('err', 'Could not reach Google Sheets');
+  }
+}
+
+/* ============ TABS ============ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    if(btn.dataset.view === 'analytics') renderAnalytics();
+  });
+});
+
+/* ============ SCHEDULE ============ */
+let currentMonth = new Date(2026, 6, 1); // July 2026 to match your paper roster
+const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const weekdayShort = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const ROLES = ["Physician","Nurse","Lab Technician"];
+const ROLE_SHORT = { "Physician":"Physician", "Nurse":"Nurse", "Lab Technician":"Lab Tech" };
+const SHIFT_LABEL = { A:"Shift A · Morning", B:"Shift B · Evening", C:"Shift C · Night" };
+
+function fmtMonthLabel(d){ return monthNames[d.getMonth()] + ' ' + d.getFullYear(); }
+function dateKey(d){ return d.toISOString().slice(0,10); }
+
+function renderRoster(){
+  document.getElementById('monthLabel').textContent = fmtMonthLabel(currentMonth);
+  const y = currentMonth.getFullYear(), m = currentMonth.getMonth();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const tbody = document.getElementById('rosterBody');
+  tbody.innerHTML = '';
+
+  for(let day=1; day<=daysInMonth; day++){
+    const d = new Date(y, m, day);
+    const key = dateKey(d);
+    const isWeekend = d.getDay()===5 || d.getDay()===6; // Fri/Sat weekend context
+    const tr = document.createElement('tr');
+    if(isWeekend) tr.classList.add('weekend-row');
+
+    const dateTd = document.createElement('td');
+    dateTd.className = 'date-cell';
+    dateTd.innerHTML = `${day}<span class="wk">${weekdayShort[d.getDay()]}</span>`;
+    tr.appendChild(dateTd);
+
+    ['A','B','C'].forEach(team=>{
+      const td = document.createElement('td');
+      td.className = 'team-cell';
+
+      ROLES.forEach(role=>{
+        const block = document.createElement('div');
+        block.className = 'role-block';
+        const roleLabel = document.createElement('div');
+        roleLabel.className = 'role-row';
+        roleLabel.textContent = ROLE_SHORT[role];
+        block.appendChild(roleLabel);
+
+        const entries = shifts.filter(s=>s.date===key && s.team===team && s.role===role);
+        if(entries.length === 0){
+          const addBtn = document.createElement('button');
+          addBtn.className = 'add-slot-btn';
+          addBtn.textContent = '+ assign';
+          addBtn.addEventListener('click', ()=> openSignupModal(key, team, role));
+          block.appendChild(addBtn);
+        } else {
+          entries.forEach(s=>{
+            const chip = document.createElement('span');
+            chip.className = 'assign-chip team-'+team.toLowerCase();
+            chip.innerHTML = `${escapeHtml(s.name)} <span class="x" data-id="${s.id}">✕</span>`;
+            block.appendChild(chip);
+          });
+          const addBtn = document.createElement('button');
+          addBtn.className = 'add-slot-btn';
+          addBtn.textContent = '+ add another';
+          addBtn.addEventListener('click', ()=> openSignupModal(key, team, role));
+          block.appendChild(document.createElement('br'));
+          block.appendChild(addBtn);
+        }
+        td.appendChild(block);
+      });
+
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  }
+
+  tbody.querySelectorAll('.x').forEach(x=>{
+    x.addEventListener('click', (e)=>{
+      const id = e.target.dataset.id;
+      shifts = shifts.filter(s=>s.id !== id);
+      lsSet(LS_KEY_SHIFTS, shifts);
+      pushToSheets('delete_shift', { id });
+      renderRoster();
+    });
+  });
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.getElementById('prevMonth').addEventListener('click', ()=>{
+  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()-1, 1);
+  renderRoster();
+});
+document.getElementById('nextMonth').addEventListener('click', ()=>{
+  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()+1, 1);
+  renderRoster();
+});
+
+/* Signup modal */
+const signupModal = document.getElementById('signupModal');
+function openSignupModal(dateStr, team, role){
+  document.getElementById('mDate').value = dateStr || dateKey(new Date());
+  document.getElementById('mTeam').value = team || 'A';
+  document.getElementById('mRole').value = role || 'Physician';
+  document.getElementById('mName').value = '';
+  signupModal.classList.add('active');
+}
+document.getElementById('openSignupBtn').addEventListener('click', ()=> openSignupModal());
+document.getElementById('cancelSignup').addEventListener('click', ()=> signupModal.classList.remove('active'));
+document.getElementById('confirmSignup').addEventListener('click', ()=>{
+  const date = document.getElementById('mDate').value;
+  const team = document.getElementById('mTeam').value;
+  const role = document.getElementById('mRole').value;
+  const name = document.getElementById('mName').value.trim();
+  if(!date || !name){ alert('Please enter a date and your name.'); return; }
+  const entry = { id: 's_'+Date.now(), date, team, role, name };
+  shifts.push(entry);
+  lsSet(LS_KEY_SHIFTS, shifts);
+  pushToSheets('shift', entry);
+  signupModal.classList.remove('active');
+  renderRoster();
+});
+
+/* ============ PAYMENTS ============ */
+document.getElementById('pDate').value = new Date().toISOString().slice(0,10);
+
+function renderLedgerSummary(){
+  const total = payments.reduce((s,p)=>s+Number(p.amount||0),0);
+  const count = payments.length;
+  const uniquePatients = new Set(payments.map(p=>p.name.toLowerCase().trim())).size;
+  const thisMonth = payments.filter(p=>{
+    const d = new Date(p.date); const n = new Date();
+    return d.getMonth()===n.getMonth() && d.getFullYear()===n.getFullYear();
+  }).reduce((s,p)=>s+Number(p.amount||0),0);
+
+  document.getElementById('ledgerSummary').innerHTML = `
+    <div class="stat-card accent"><div class="stat-label">Total collected</div><div class="stat-value">${total.toLocaleString()}</div></div>
+    <div class="stat-card"><div class="stat-label">This month</div><div class="stat-value">${thisMonth.toLocaleString()}</div></div>
+    <div class="stat-card"><div class="stat-label">Total entries</div><div class="stat-value">${count}</div></div>
+    <div class="stat-card"><div class="stat-label">Unique patients</div><div class="stat-value">${uniquePatients}</div></div>
+  `;
+}
+
+function renderLedger(){
+  const search = document.getElementById('ledgerSearch').value.toLowerCase().trim();
+  const tbody = document.getElementById('ledgerBody');
+  tbody.innerHTML = '';
+  const sorted = [...payments].sort((a,b)=> new Date(b.date) - new Date(a.date));
+  const filtered = search ? sorted.filter(p=>p.name.toLowerCase().includes(search)) : sorted;
+
+  document.getElementById('ledgerCount').textContent = filtered.length + ' entries';
+
+  if(filtered.length === 0){
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="e-icon">📋</div><p>No entries yet. Add the first payment above.</p></div></td></tr>`;
+    return;
+  }
+
+  filtered.forEach((p, idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${p.date}</td>
+      <td>${escapeHtml(p.name)}</td>
+      <td><span class="procedure-tag">${escapeHtml(p.proc||'—')}</span></td>
+      <td class="amount">${Number(p.amount||0).toLocaleString()}</td>
+      <td style="color:var(--slate);">${escapeHtml(p.notes||'')}</td>
+      <td><button class="btn btn-danger btn-sm" data-id="${p.id}">Remove</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll('button[data-id]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.id;
+      payments = payments.filter(p=>p.id !== id);
+      lsSet(LS_KEY_PAYMENTS, payments);
+      pushToSheets('delete_payment', { id });
+      renderLedgerSummary(); renderLedger();
+    });
+  });
+}
+
+document.getElementById('addPaymentBtn').addEventListener('click', ()=>{
+  const date = document.getElementById('pDate').value;
+  const name = document.getElementById('pName').value.trim();
+  const proc = document.getElementById('pProc').value.trim();
+  const amount = document.getElementById('pAmount').value;
+  const notes = document.getElementById('pNotes').value.trim();
+  if(!date || !name || !amount){ alert('Please fill in date, patient name, and amount.'); return; }
+
+  const entry = { id:'p_'+Date.now(), date, name, proc, amount:Number(amount), notes };
+  payments.push(entry);
+  lsSet(LS_KEY_PAYMENTS, payments);
+  pushToSheets('payment', entry);
+
+  document.getElementById('pName').value='';
+  document.getElementById('pProc').value='';
+  document.getElementById('pAmount').value='';
+  document.getElementById('pNotes').value='';
+
+  renderLedgerSummary(); renderLedger();
+});
+
+document.getElementById('ledgerSearch').addEventListener('input', renderLedger);
+
+/* ============ ANALYTICS ============ */
+const lockScreen = document.getElementById('lockScreen');
+const analyticsContent = document.getElementById('analyticsContent');
+
+function checkUnlockSession(){
+  if(sessionStorage.getItem(LS_KEY_UNLOCKED) === 'true'){
+    lockScreen.style.display='none';
+    analyticsContent.style.display='block';
+  }
+}
+checkUnlockSession();
+
+document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
+document.getElementById('lockPassInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') tryUnlock(); });
+function tryUnlock(){
+  const val = document.getElementById('lockPassInput').value;
+  if(val === analyticsPass){
+    sessionStorage.setItem(LS_KEY_UNLOCKED, 'true');
+    lockScreen.style.display='none';
+    analyticsContent.style.display='block';
+    document.getElementById('lockError').style.display='none';
+    renderAnalytics();
+  }else{
+    document.getElementById('lockError').style.display='block';
+  }
+}
+document.getElementById('lockAgainBtn').addEventListener('click', ()=>{
+  sessionStorage.removeItem(LS_KEY_UNLOCKED);
+  lockScreen.style.display='block';
+  analyticsContent.style.display='none';
+  document.getElementById('lockPassInput').value='';
+});
+
+function getAvailableMonths(){
+  const set = new Set();
+  shifts.forEach(s=> set.add(s.date.slice(0,7)));
+  payments.forEach(p=> set.add(p.date.slice(0,7)));
+  set.add(new Date().toISOString().slice(0,7));
+  return [...set].sort().reverse();
+}
+
+function renderAnalytics(){
+  const sel = document.getElementById('analyticsMonthSelect');
+  const months = getAvailableMonths();
+  const prevVal = sel.value;
+  sel.innerHTML = months.map(m=>{
+    const [y,mo] = m.split('-');
+    const label = monthNames[Number(mo)-1] + ' ' + y;
+    return `<option value="${m}">${label}</option>`;
+  }).join('');
+  if(months.includes(prevVal)) sel.value = prevVal;
+
+  drawAnalyticsForMonth(sel.value);
+  sel.onchange = ()=> drawAnalyticsForMonth(sel.value);
+}
+
+function drawAnalyticsForMonth(monthKey){
+  if(!monthKey) return;
+  const [y, mo] = monthKey.split('-');
+  document.getElementById('analyticsMonthLabel').textContent = monthNames[Number(mo)-1] + ' ' + y;
+
+  const monthShifts = shifts.filter(s=>s.date.startsWith(monthKey));
+  const monthPayments = payments.filter(p=>p.date.startsWith(monthKey));
+  const totalRevenue = monthPayments.reduce((s,p)=>s+Number(p.amount||0),0);
+
+  document.getElementById('analyticsOverview').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total shifts logged</div><div class="stat-value">${monthShifts.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Staff on roster</div><div class="stat-value">${new Set(monthShifts.map(s=>s.name.toLowerCase())).size}</div></div>
+    <div class="stat-card accent"><div class="stat-label">Total patient payments</div><div class="stat-value">${totalRevenue.toLocaleString()}</div></div>
+    <div class="stat-card"><div class="stat-label">Payment entries</div><div class="stat-value">${monthPayments.length}</div></div>
+  `;
+
+  const byStaff = {};
+  monthShifts.forEach(s=>{
+    const key = s.name.trim();
+    if(!byStaff[key]) byStaff[key] = { name:key, role:s.role, A:0, B:0, C:0, total:0 };
+    byStaff[key][s.team] += 1;
+    byStaff[key].total += 1;
+  });
+
+  const staffGrid = document.getElementById('staffGrid');
+  const list = Object.values(byStaff).sort((a,b)=> b.total - a.total);
+
+  if(list.length === 0){
+    staffGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="e-icon">📊</div><p>No shifts logged for this month yet.</p></div>`;
+    return;
+  }
+
+  staffGrid.innerHTML = list.map(s=>`
+    <div class="staff-card">
+      <div class="name">${escapeHtml(s.name)}</div>
+      <div class="role">${escapeHtml(s.role)}</div>
+      <div class="staff-metrics">
+        <div class="metric"><div class="m-num">${s.total}</div><div class="m-lbl">Total shifts</div></div>
+      </div>
+      <div class="team-breakdown">
+        <span style="background:var(--team-a-bg); color:var(--team-a);">Morning · ${s.A}</span>
+        <span style="background:var(--team-b-bg); color:var(--team-b);">Evening · ${s.B}</span>
+        <span style="background:var(--team-c-bg); color:var(--team-c);">Night · ${s.C}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============ SETTINGS ============ */
+document.getElementById('saveSheetsUrl').addEventListener('click', async ()=>{
+  const url = document.getElementById('sheetsUrl').value.trim();
+  sheetsUrl = url;
+  lsSet(LS_KEY_SHEETS_URL, url);
+  const statusEl = document.getElementById('sheetsStatus');
+  if(!url){
+    statusEl.textContent = 'Not connected yet.';
+    setSyncStatus('', 'Local only — add Sheets URL in settings');
+    return;
+  }
+  statusEl.textContent = 'Testing connection…';
+  try{
+    await fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify({type:'ping', payload:{}}) });
+    statusEl.textContent = 'Connected. Loading shared data…';
+    setSyncStatus('ok', 'Connected to Google Sheets');
+    await pullFromSheets(true);
+    statusEl.textContent = 'Connected and up to date.';
+  }catch(e){
+    statusEl.textContent = 'Could not reach that URL. Double check it was deployed as a Web App.';
+    setSyncStatus('err', 'Connection failed');
+  }
+});
+
+document.getElementById('savePassBtn').addEventListener('click', ()=>{
+  const val = document.getElementById('newPassInput').value;
+  if(!val){ alert('Enter a new password first.'); return; }
+  analyticsPass = val;
+  lsSet(LS_KEY_PASS, val);
+  document.getElementById('newPassInput').value='';
+  alert('Analytics password updated.');
+});
+
+document.getElementById('refreshBtn').addEventListener('click', ()=> pullFromSheets());
+
+/* ============ INIT ============ */
+renderRoster();
+renderLedgerSummary();
+renderLedger();
+
+if(sheetsUrl){
+  pullFromSheets();
+  // Keep everyone's view fresh without needing a manual reload.
+  setInterval(()=> pullFromSheets(true), 20000);
+}
+</script>
+</body>
+</html>
